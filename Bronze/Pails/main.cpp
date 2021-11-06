@@ -5,49 +5,41 @@
 using namespace std;
 
 int main () {
+    // Initialize pail size variables.
     int pailSizeS,
         pailSizeM,
         pailSizeL;  
 
+    // Create filestreams.
     ofstream fout("pails.out");
     ifstream fin("pails.in");
 
+    // Parse inputs to variables.
     fin >> pailSizeS >> pailSizeM >> pailSizeL;
 
-    int mpAmtS = floor(pailSizeL / pailSizeS);
-    int mpAmtM = floor(pailSizeL / pailSizeM);
+    int mpAmtS = pailSizeL / pailSizeS; // Maximum number of of small pails that will fit into the large pail.
+    int mpAmtM = pailSizeL / pailSizeM; // Maximum number of medium pails that will fit into the large pail.
 
-    cout << mpAmtS << endl << mpAmtM << endl;
+    int pAmtS = mpAmtS; // Start at the maximum amount of small pails that can fit in the large pail.
+    int pAmtM = 0; // Start at zero medium pails.
 
-    int pAmtS = mpAmtS;
-    int pAmtM = 0;
+    int ans = mpAmtS * pailSizeS; // Initialize answer.
 
-    int totalAmount = 1001;
-    int i = 0;
-    do {
-        i++;
+    // While the total volume is less than the volume of the large pail, and the number of medium pails is less than the maximum
+    // number of medium pails that can fit, add a medium pail to the combination and adjust small accordingly, seeing if it is
+    // possible to get a higher volume out of a different combination.
+    while((pAmtS * pailSizeS + pAmtM * pailSizeM) <= pailSizeL && pAmtM < mpAmtM) {
+        pAmtM++; // Add a medium pail.
 
-        pAmtS--;
-        pAmtM++;
+        // Remove as many small pails necessary until the addition of the medium pail can be made to fit into the large pail.
+        while((pAmtS * pailSizeS + pAmtM * pailSizeM) > pailSizeL) pAmtS--;
 
-        totalAmount = pAmtS * pailSizeS + pAmtM * pailSizeM;
+        // If more volume has been filled than previous answer, choose this as the answer.
+        ans = max(ans, (pAmtS * pailSizeS + pAmtM * pailSizeM));
 
-        cout << "--------- ATTEMPT " << i << " ---------" << endl;
-        cout << "S: " << pAmtS << endl;
-        cout << "M: " << pAmtM << endl;
-        cout << "T: " << totalAmount << endl;
+        if (ans == pailSizeL) break; // Break out of the loop if we have already reached the equivalent value (to discard equivalent iterations).
     }
-    while (totalAmount <= pailSizeL && pAmtS > 0);
 
-    pAmtS++;
-    pAmtM--;
-
-    totalAmount = pAmtS * pailSizeS + pAmtM * pailSizeM;
-
-    cout << "--------- FINAL RESPONSE ---------" << endl;
-    cout << "S: " << pAmtS << endl;
-    cout << "M: " << pAmtM << endl;
-    cout << "T: " << totalAmount << endl;
-
-    fout << totalAmount;
+    // Write answer to output file.
+    fout << ans;
 }
